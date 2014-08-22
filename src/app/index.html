@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html ng-app="processor">
+  <head>
+    <meta charset="utf-8"/>
+    <title>processor</title>
+    <!-- inject:vendor:css -->
+    <link rel="stylesheet" href="/codemirror/lib/codemirror.css">
+    <!-- endinject -->
+    <!-- inject:css -->
+    <link rel="stylesheet" href="/css/app.css">
+    <!-- endinject -->
+  </head>
+  <body>
+    <h1>processor</h1>
+    <ui-view></ui-view>
+    <!-- inject:vendor:js -->
+    <script src="/angular/angular.js"></script>
+    <script src="/angular-ui-router/release/angular-ui-router.js"></script>
+    <script src="/codemirror/lib/codemirror.js"></script>
+    <script src="/angular-ui-codemirror/ui-codemirror.js"></script>
+    <!-- endinject -->
+    <!-- inject:js -->
+    <script src="/lib/peg-0.8.0.min.js"></script>
+    <script src="/app.js"></script>
+    <script src="/processor-templates.js"></script>
+    <!-- endinject -->
+  </body>
+</html>
