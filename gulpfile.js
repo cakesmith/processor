@@ -33,6 +33,16 @@ gulp.task('peg', function() {
     .pipe(gulp.dest('./src/app/parsers/'));
 });
 
+gulp.task('test-ci', ['test'], function () {
+  gulp.watch([
+    './src/app/**/*_test.js',
+    './.tmp/src/app/**/*_test.js',
+      './.tmp/' + bower.name + '-templates.js',
+    './.tmp/src/app/**/*.js',
+    './src/app/**/*.js'
+  ], ['test']);
+});
+
 /**
  * JS Hint
  */

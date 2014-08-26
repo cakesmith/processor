@@ -14,8 +14,8 @@ module.exports = function ( karma ) {
     files: [
     ],
 
-    frameworks: [ 'mocha', 'chai' ],
-    plugins: [ 'karma-mocha', 'karma-chai', 'karma-phantomjs-launcher' ],
+    frameworks: [ 'jasmine' ],
+    plugins   : [ 'karma-jasmine', 'karma-phantomjs-launcher' ],
 
     /**
      * How to report, by default.

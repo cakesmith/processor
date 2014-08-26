@@ -217,71 +217,98 @@
   });
 
   app.factory('CPU', function () {
+
+    var addressWidth = 15;
+
     var ALU = {
       '0'  : function () {
-        return 0
+        0;
       },
       '1'  : function () {
-        return 1
+        1
       },
       '-1' : function () {
-        return -1
+        -1
       },
       'D'  : function (a, d) {
-        return d
+        d
       },
       'A'  : function (a) {
-        return a
+        a
       },
       '!D' : function (a, d) {
-        return !d
+        ~d
       },
       '!A' : function (a) {
-        return !a
+        ~a
       },
       '-D' : function (a, d) {
-        return -d
+        -d
       },
       '-A' : function (a) {
-        return -a
+        -a
       },
       'D+1': function (a, d) {
-        return d + 1
+        d + 1
       },
       'A+1': function (a) {
-        return a + 1
+        a + 1
       },
       'D-1': function (a, d) {
-        return d - 1
+        d - 1
       },
       'A-1': function (a) {
-        return a - 1
+        a - 1
       },
       'D+A': function (a, d) {
-        return a + d
+        a + d
       },
       'A+D': function (a, d) {
-        return a + d
+        a + d
       },
       'D-A': function (a, d) {
-        return d - a
+        d - a
       },
       'A-D': function (a, d) {
-        return a - d
+        a - d
       },
       'A&D': function (a, d) {
-        return a & d
+        a & d
       },
       'D&A': function (a, d) {
-        return a & d
+        a & d
       },
       'A|D': function (a, d) {
-        return a | d
+        a | d
       },
       'D|A': function (a, d) {
-        return a | d
+        a | d
       }
 
+    };
+
+    var jumpAnalyzer = {
+      JGT: function (result) {
+        return (result > 0);
+      },
+      JEQ: function (result) {
+        return (result === 0);
+      },
+      JGE: function (result) {
+        return (result >= 0);
+      },
+      JLT: function (result) {
+        return (result < 0);
+      },
+      JNE: function (result) {
+        return (result !== 0);
+      },
+      JLE: function (result) {
+        return (result <= 0);
+      },
+      JMP: function () {
+        return true;
+      }
     };
 
     var reg = {
@@ -293,8 +320,26 @@
       KBD: 0
     };
 
+    var ROM;
+
     var RAM = [];
 
+    function step() {
+
+    }
+
+    function load() {
+
+    }
+
+    return {
+      step        : step,
+      load        : load,
+      jumpAnalyzer: jumpAnalyzer,
+      reg         : reg,
+      ALU         : ALU,
+      RAM         : RAM
+    }
 
   });
 
