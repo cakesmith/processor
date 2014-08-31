@@ -8,114 +8,208 @@ describe('CPU test', function () {
 
     CPU = _CPU_;
 
-
   }));
 
   it('should be sane', function () {
-
     expect(CPU).toBeDefined();
-
   });
 
 
-  it('should analyze jump information', function () {
+  describe('analyzing jump information', function () {
 
-    var jumpTest = {
-      JGT: [
-        {
-          result: 0,
-          expect: true
-        },
-        {
-          result: 42,
-          expect: true
-        },
-        {
-          result: -42,
-          expect: false
-        }
-      ],
+    var test;
 
-      JEQ: [
-        {
-          result: 0,
-          expect: true
-        },
-        {
-          result: 42,
-          expect: false
-        },
-        {
-          result: -42,
-          expect: false
-        }
-      ],
+    it('JGT', function () {
 
-      JGE: [
-        {
-          result: 0,
-          expect: true
-        },
-        {
-          result: 42,
-          expect: true
-        },
-        {
-          result: -42,
-          expect: false
-        }
-      ],
+      test = {
+        JGT: [
+          {
+            result: 0,
+            expect: false
+          },
+          {
+            result: 42,
+            expect: true
+          },
+          {
+            result: -42,
+            expect: false
+          }
+        ]
+      };
 
-      JLT: [
-        {
-          result: 0,
-          expect: false
-        },
-        {
-          result: 42,
-          expect: false,
-        },
-        {
-          result: -42,
-          expect: true
-        }
-      ],
+    });
 
-      JNE: [
-        {
-          result: 0,
-          expect: false
-        },
-        {
-          result: 42,
-          expect: true
-        },
-        {
-          result: -42,
-          expect: true
-        }
-      ],
+    it('JEQ', function () {
 
-//      JLE: [
-//
-//      ]
+      test = {
+        JEQ: [
+          {
+            result: 0,
+            expect: true
+          },
+          {
+            result: 42,
+            expect: false
+          },
+          {
+            result: -42,
+            expect: false
+          }
+        ]
+      };
 
+    });
 
-    };
+    it('JGE', function () {
 
-    angular.forEach(jumpTest, function (tests, jumpUnderTest) {
-      angular.forEach(tests, function (value) {
-        var analyze = CPU.jumpAnalyzer[jumpUnderTest];
-        console.log(jumpUnderTest);
-        console.log('result: ' + value.result);
-        console.log('expect: ' + value.expect);
-        expect(analyze(value.result)).toEqual(value.expect);
+      test = {
+        JGE: [
+          {
+            result: 0,
+            expect: true
+          },
+          {
+            result: 42,
+            expect: true
+          },
+          {
+            result: -42,
+            expect: false
+          }
+        ]
+      };
+
+    });
+
+    it('JLT', function () {
+
+      test = {
+        JLT: [
+          {
+            result: 0,
+            expect: false
+          },
+          {
+            result: 42,
+            expect: false
+          },
+          {
+            result: -42,
+            expect: true
+          }
+        ]
+      };
+
+    });
+
+    it('JNE', function () {
+
+      test = {
+        JNE: [
+          {
+            result: 0,
+            expect: false
+          },
+          {
+            result: 42,
+            expect: true
+          },
+          {
+            result: -42,
+            expect: true
+          }
+        ]
+      };
+
+    });
+
+    it('JLE', function () {
+
+      test = {
+        JLE: [
+          {
+            result: 0,
+            expect: true
+          },
+          {
+            result: 42,
+            expect: false
+          },
+          {
+            result: -42,
+            expect: true
+          }
+        ]
+      };
+
+    });
+
+    it('JMP', function () {
+
+      test = {
+        JMP: [
+          {
+            result: 0,
+            expect: true
+          },
+          {
+            result: 42,
+            expect: true
+          },
+          {
+            result: -42,
+            expect: true
+          }
+        ]
+      };
+
+    });
+
+    afterEach(function () {
+      angular.forEach(test, function (tests, jump) {
+        angular.forEach(tests, function (test) {
+          var analyze = CPU._jumpAnalyzer[jump];
+          expect(analyze(test.result)).toEqual(test.expect);
+        });
       });
     });
 
   });
 
-  it('should have a functional ALU', function () {
+  describe('Arithmetic Logic Unit', function () {
+
+    it('should have a functional ALU', function () {
+
+      expect(CPU._ALU).toBeDefined();
+
+      var a = 1234,
+          d = 3333,
+          alu = CPU._ALU;
+
+      expect(alu['0'](a, d)).toEqual(0);
+      expect(alu['1'](a, d)).toEqual(1);
+      expect(alu['-1'](a, d)).toEqual(-1);
+      expect(alu['D'](a, d)).toEqual(3333);
+      expect(alu['A'](a, d)).toEqual(1234);
+      expect(alu['!D'](a, d)).toEqual(-3334);
+      expect(alu['!A'](a, d)).toEqual(-1235);
+      expect(alu['-D'](a, d)).toEqual(-3333);
+      expect(alu['-A'](a, d)).toEqual(-1234);
+      expect(alu['D+1'](a, d)).toEqual(3334);
+      expect(alu['A+1'](a, d)).toEqual(1235);
+      expect(alu['D-1'](a, d)).toEqual(3332);
+      expect(alu['A-1'](a, d)).toEqual(1233);
+      expect(alu['D+A'](a, d)).toEqual(4567);
+      expect(alu['A+D'](a, d)).toEqual(4567);
+      expect(alu['D-A'](a, d)).toEqual(2099);
+      expect(alu['A-D'](a, d)).toEqual(-2099);
+      expect(alu['A&D'](a, d)).toEqual(1024);
+      expect(alu['D&A'](a, d)).toEqual(1024);
+      expect(alu['A|D'](a, d)).toEqual(3543);
+      expect(alu['D|A'](a, d)).toEqual(3543);
+
+    });
 
 
   });

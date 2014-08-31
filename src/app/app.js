@@ -13,10 +13,10 @@
 
   });
 
-  app.factory('draw', function ($timeout) {
+  app.factory('IO', function () {
 
-    var screen = {};
-    var ctx, px;
+    var screen = {},
+        ctx, px;
 
     screen.bg = [20, 2, 2, 255]; // blackish
     screen.fg = [55, 206, 39, 255]; // greenish
@@ -55,12 +55,23 @@
       px = pixel;
     }
 
+    function addKeyboard() {
+
+    }
+
+    function read(address) {
+
+    }
+
+    function write(address, data) {
+
+    }
+
     return {
-      addScreen: addScreen,
-      screen   : screen,
-      pixel    : pixel,
-      fill     : fill,
-      rgba     : rgba
+      addScreen  : addScreen,
+      addKeyboard: addKeyboard,
+      read       : read,
+      write      : write
     }
 
   });
@@ -112,6 +123,8 @@
     }
 
     function assemble(command) {
+
+      console.log(command);
 
       if (command.type === 'A') {
 
@@ -216,95 +229,94 @@
 
   });
 
-  app.factory('CPU', function () {
+  app.factory('CPU', function (IO) {
 
-    var addressWidth = 15;
 
     var ALU = {
       '0'  : function () {
-        0;
+        return 0;
       },
       '1'  : function () {
-        1
+        return 1
       },
       '-1' : function () {
-        -1
+        return -1
       },
       'D'  : function (a, d) {
-        d
+        return d
       },
       'A'  : function (a) {
-        a
+        return a
       },
       '!D' : function (a, d) {
-        ~d
+        return ~d
       },
       '!A' : function (a) {
-        ~a
+        return ~a
       },
       '-D' : function (a, d) {
-        -d
+        return -d
       },
       '-A' : function (a) {
-        -a
+        return -a
       },
       'D+1': function (a, d) {
-        d + 1
+        return d + 1
       },
       'A+1': function (a) {
-        a + 1
+        return a + 1
       },
       'D-1': function (a, d) {
-        d - 1
+        return d - 1
       },
       'A-1': function (a) {
-        a - 1
+        return a - 1
       },
       'D+A': function (a, d) {
-        a + d
+        return a + d
       },
       'A+D': function (a, d) {
-        a + d
+        return a + d
       },
       'D-A': function (a, d) {
-        d - a
+        return d - a
       },
       'A-D': function (a, d) {
-        a - d
+        return a - d
       },
       'A&D': function (a, d) {
-        a & d
+        return a & d
       },
       'D&A': function (a, d) {
-        a & d
+        return a & d
       },
       'A|D': function (a, d) {
-        a | d
+        return a | d
       },
       'D|A': function (a, d) {
-        a | d
+        return a | d
       }
 
     };
 
     var jumpAnalyzer = {
-      JGT: function (result) {
-        return (result > 0);
+      JGT: function (x) {
+        return (x > 0);
       },
-      JEQ: function (result) {
-        return (result === 0);
+      JEQ: function (x) {
+        return (x === 0);
       },
-      JGE: function (result) {
-        return (result >= 0);
+      JGE: function (x) {
+        return (x >= 0);
       },
-      JLT: function (result) {
-        return (result < 0);
+      JLT: function (x) {
+        return (x < 0);
       },
-      JNE: function (result) {
-        return (result !== 0);
+      JNE: function (x) {
+        return (x !== 0);
       },
-      JLE: function (result) {
-        return (result <= 0);
+      JLE: function (x) {
+        return (x <= 0);
       },
       JMP: function () {
         return true;
@@ -320,25 +332,42 @@
       KBD: 0
     };
 
-    var ROM;
-
     var RAM = [];
 
-    function step() {
+    function step(command) {
+
+      reg.zr = 0;
+      reg.ng = 0;
+
+      var result;
+
+      if (command.comp) {
+        if (command.comp.indexOf('M') !== -1) {
+          // swap A for M and
+          var comp = command.comp.replace('M', 'A');
+          result = ALU[comp](IO.read(reg.A), reg.D);
+        } else {
+          result = ALU[command.comp](reg.A, reg.D);
+        }
+      }
+
+
+      if (command.jump) {
+        var jump = jumpAnalyzer[command['jump']];
+        reg.PC = jump(result) ? reg.A : reg.PC + 1;
+      } else {
+        reg.PC++;
+      }
+
 
     }
 
-    function load() {
-
-    }
 
     return {
-      step        : step,
-      load        : load,
-      jumpAnalyzer: jumpAnalyzer,
-      reg         : reg,
-      ALU         : ALU,
-      RAM         : RAM
+      step         : step,
+      _jumpAnalyzer: jumpAnalyzer,
+      reg          : reg,
+      _ALU         : ALU
     }
 
   });
@@ -408,13 +437,13 @@
 
   });
 
-  app.controller('ScreenCtrl', function ($scope, draw, $timeout) {
+  app.controller('ScreenCtrl', function ($scope, IO) {
 
-    $scope.screen = draw.screen;
+    $scope.screen = IO.screen;
 
   });
 
-  app.directive('screen', function (draw) {
+  app.directive('screen', function (IO) {
 
     return {
 
@@ -427,7 +456,7 @@
       link: function (scope, element) {
         var ctx = element[0].firstChild.getContext('2d');
         var px = ctx.createImageData(1, 1);
-        draw.addScreen(ctx, px);
+        IO.addScreen(ctx, px);
       }
 
     }
@@ -436,5 +465,5 @@
 
 }(angular.module('processor', [
   'ui.router',
-  'ui.codemirror',
+  'ui.codemirror'
 ])));
