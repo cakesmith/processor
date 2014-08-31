@@ -13,7 +13,7 @@
 
   });
 
-  app.factory('IO', function () {
+  app.factory('IO', function ($timeout) {
 
     var screen = {},
         ctx, px;
@@ -53,6 +53,9 @@
     function addScreen(context, pixel) {
       ctx = context;
       px = pixel;
+      $timeout(function () {
+        fill(screen.bg);
+      });
     }
 
     function addKeyboard() {
@@ -70,6 +73,7 @@
     return {
       addScreen  : addScreen,
       addKeyboard: addKeyboard,
+      screen: screen,
       read       : read,
       write      : write
     }
@@ -323,21 +327,18 @@
       }
     };
 
-    var reg = {
-      PC : 0,
-      zr : 0,
-      ng : 0,
-      A  : 0,
-      D  : 0,
-      KBD: 0
+    var regs = {
+      PC: 0,
+      zr: 0,
+      ng: 0,
+      A : 0,
+      D : 0
     };
-
-    var RAM = [];
 
     function step(command) {
 
-      reg.zr = 0;
-      reg.ng = 0;
+      regs.zr = 0;
+      regs.ng = 0;
 
       var result;
 
@@ -345,18 +346,18 @@
         if (command.comp.indexOf('M') !== -1) {
           // swap A for M and
           var comp = command.comp.replace('M', 'A');
-          result = ALU[comp](IO.read(reg.A), reg.D);
+          result = ALU[comp](IO.read(regs.A), regs.D);
         } else {
-          result = ALU[command.comp](reg.A, reg.D);
+          result = ALU[command.comp](regs.A, regs.D);
         }
       }
 
 
       if (command.jump) {
         var jump = jumpAnalyzer[command['jump']];
-        reg.PC = jump(result) ? reg.A : reg.PC + 1;
+        regs.PC = jump(result) ? regs.A : regs.PC + 1;
       } else {
-        reg.PC++;
+        regs.PC++;
       }
 
 
@@ -366,7 +367,7 @@
     return {
       step         : step,
       _jumpAnalyzer: jumpAnalyzer,
-      reg          : reg,
+      regs: regs,
       _ALU         : ALU
     }
 
